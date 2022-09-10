@@ -27,8 +27,8 @@ int pair_count;
 int candidate_count;
 
 // Function prototypes
-bool vote(int rank, string name, int ranks[]);
-void record_preferences(int ranks[]);
+bool vote(int rank, string name, int ranks[]);  // Vote for a candidate
+void record_preferences(int ranks[]);  // Records the preferences from the vote function above 
 void add_pairs(void);
 void sort_pairs(void);
 void lock_pairs(void);
