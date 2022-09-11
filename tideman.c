@@ -29,10 +29,10 @@ int candidate_count;
 // Function prototypes
 bool vote(int rank, string name, int ranks[]);  // Vote for a candidate
 void record_preferences(int ranks[]);  // Records the preferences from the vote function above 
-void add_pairs(void);
-void sort_pairs(void);
-void lock_pairs(void);
-void print_winner(void);
+void add_pairs(void);  // Add pairs to the pairs array
+void sort_pairs(void);  // Sort pairs in order of strength
+void lock_pairs(void);  // Add pairs to graph
+void print_winner(void);  // Print winner of the election
 bool check_cycle(int pair, int start_num);
 
 
@@ -48,12 +48,12 @@ int main(int argc, string argv[])
     // Populate array of candidates
 
     candidate_count = argc - 1;
-    if (candidate_count > MAX)
+    if (candidate_count > MAX)  // Check to make sure we have the appropriate number of candidates
     {
         printf("Maximum number of candidates is %i\n", MAX);
         return 2;
     }
-    for (int i = 0; i < candidate_count; i++)
+    for (int i = 0; i < candidate_count; i++)  // If we do, add every candidate's name to the candidate array
     {
         candidates[i] = argv[i + 1];
     }
@@ -71,29 +71,29 @@ int main(int argc, string argv[])
     int voter_count = get_int("Number of voters: ");
 
     // Query for votes
-    for (int i = 0; i < voter_count; i++)
+    for (int i = 0; i < voter_count; i++)  // For every voter:
     {
-        // ranks[i] is voter's ith preference
+        // ranks[i-1] is voter's ith preference
         int ranks[candidate_count];
 
         // Query for each rank
-        for (int j = 0; j < candidate_count; j++)
+        for (int j = 0; j < candidate_count; j++)  // Go through every candidate
         {
-            string name = get_string("Rank %i: ", j + 1);
+            string name = get_string("Rank %i: ", j + 1);  // Ask voter for the candidate they want to place at each rank
 
-            if (!vote(j, name, ranks))
+            if (!vote(j, name, ranks))  // vote will return false if a vote is not successfully added
             {
                 printf("Invalid vote.\n");
                 return 3;
             }
         }
 
-        record_preferences(ranks);
+        record_preferences(ranks); // Record the preferences from each voter
 
         printf("\n");
     }
 
-    add_pairs(); // Now, NOT for every voter. For overall preferences
+    add_pairs(); // Now, once we have all of the matchups, we can utilize the tideman voting system
     sort_pairs();
     lock_pairs();
     print_winner();
@@ -103,28 +103,26 @@ int main(int argc, string argv[])
 // Update ranks given a new vote
 bool vote(int rank, string name, int ranks[])
 {
-    // TODO
-    for (int i = 0; i < candidate_count; i++)
+    for (int i = 0; i < candidate_count; i++)  // Check every candidate
     {
-        if (strcmp(name, candidates[i]) == 0) // Look at all candidates, check to see if given name is a match
+        if (strcmp(name, candidates[i]) == 0) // If that candidate's name is a match to the vote given:
         {
-            ranks[rank] = i; // If it is, rank that candidate's index at that position
-            return true;
+            ranks[rank] = i; // Place that candidate's index at the corresponding rank
+            return true;  // Return true to show that the vote was valid
         }
     }
 
-    return false;
+    return false;  // If it was not a valid vote, return false
 }
 
 // Update preferences given one voter's ranks
 void record_preferences(int ranks[])
 {
-    // TODO
     for (int i = 0; i < candidate_count; i++) // For every candidate:
     {
         for (int j = 0; j < candidate_count; j++) // Compare to every other candidate
         {
-            if ((j - i) > 0) // If the current candidate is higher ranked than the other candidate (j > i)
+            if ((j - i) > 0) // If the current candidate is higher ranked than the other candidate (j > i) when comparing the candidate's positions in ranks[]:
             {
                 preferences[ranks[i]][ranks[j]] += 1; // Candidate i is preferred over j
             }
@@ -137,7 +135,6 @@ void record_preferences(int ranks[])
 // Record pairs of candidates where one is preferred over the other
 void add_pairs(void)
 {
-    // TODO
 
     for (int i = 0; i < candidate_count; i++)
     {
@@ -158,26 +155,26 @@ void add_pairs(void)
 // Sort pairs in decreasing order by strength of victory
 void sort_pairs(void)
 {
-    // TODO
 
     // Strength = preferences[pairs[a].winner][pairs[a].loser]
 
     pair temp; // Temporarily store value
 
-    for (int i = 0; i < pair_count; i++) // For every position in pairs array
+    for (int i = 0; i < pair_count; i++) // For all pairs that were made
     {
         int strongest = 0; // Strongest edge
 
-        for (int j = i; j < pair_count; j++) // Look for strongest edge
+        for (int j = i; j < pair_count; j++) // Look for strongest edge by going through every pair
         {
-            if (preferences[pairs[j].winner][pairs[j].loser] - preferences[pairs[j].loser][pairs[j].winner]  > strongest)
+            if (preferences[pairs[j].winner][pairs[j].loser] - preferences[pairs[j].loser][pairs[j].winner]  > strongest)  // The strongest edge is determined by the greatest difference between candidate votes within an edge
             {
                 strongest = j;
             }
         }
 
+        // Swap current position with strongest pair
         temp = pairs[i];
-        pairs[i] = pairs[strongest]; // Swap current position with strongest pair
+        pairs[i] = pairs[strongest]; 
         pairs[strongest] = temp;
 
 
@@ -189,7 +186,7 @@ void sort_pairs(void)
 // Lock pairs into the candidate graph in order, without creating cycles
 void lock_pairs(void)
 {
-    // TODO
+
 
     for (int i = 0; i < 2; i++)
     {
@@ -210,11 +207,9 @@ void lock_pairs(void)
 }
 
 
-
+// To check for a cycle, we want to see if we can follow an edge all the way to where it leads back to the same candidate
 bool check_cycle(int pair, int start_num)
 {
-
-
 
     int num = pairs[pair].loser;
 
@@ -251,7 +246,6 @@ bool check_cycle(int pair, int start_num)
 // Print the winner of the election
 void print_winner(void)
 {
-    // TODO
 
 
     for (int i = 0; i < candidate_count; i++) // For every candidate
